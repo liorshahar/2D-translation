@@ -1,0 +1,85 @@
+/* Created by Lior Shahar */
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+nav {
+  background-color: #333;
+  height: 50px;
+}
+
+nav h1 {
+  margin: 0;
+  color: white;
+  line-height: 50px;
+  margin-left: 220px;
+}
+/* right canvas context */
+
+#mainContext {
+  background-color: gray;
+  height: 598px;
+  width: 88%;
+  float: right;
+  overflow: hidden;
+  border-bottom: 1px solid #333;
+  border-top: 1px solid #333;
+}
+
+/* left menu bar */
+
+/* genral */
+#leftMenuBar {
+  width: 12%;
+  height: 598px;
+  float: left;
+  background-color: #333;
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+}
+
+/* TOOLS */
+#leftMenuBar section {
+  color: white;
+  text-align: center;
+  height: 30px;
+  margin-top: 5px;
+  line-height: 30px;
+  font-size: 15px;
+}
+
+#leftMenuBar section p {
+  margin: 0;
+}
+
+/* container flex box */
+
+.toolsContainer {
+  display: flex;
+  flex-flow: row wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toolsItem {
+  background-color: bisque;
+  width: 48%;
+  height: 90px;
+  margin-top: 1px;
+  margin-left: 2px;
+  margin-bottom: 1px;
+}
+
+.toolsItemLong {
+  width: 97%;
+}
+
+footer {
+  background-color: #333;
+  height: 150px;
+  clear: both;
+}
