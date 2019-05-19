@@ -36,9 +36,26 @@ function clearCanvas(ctxCanvas) {
   ctxCanvas.clearRect(0, 0, ctxCanvas.canvas.width, ctxCanvas.canvas.height);
 }
 
+function setLeftMenuAndCanvasHight() {
+  let windowHeight = window.innerHeight;
+
+  /* Set canvas height */
+  let canvas = document.getElementById("myCanvas");
+  let ctx = canvas.getContext("2d");
+  ctx.canvas.height = windowHeight - 173; // minus -> header + footer = 200
+
+  /* Set side menu height */
+  let leftMenuBar = document.getElementById("leftMenuBar");
+  leftMenuBar.style.height = `${windowHeight - 172}px`; // minus -> header + footer + border  = 202
+}
 /* Window on load */
 
+window.onresize = () => {
+  setLeftMenuAndCanvasHight();
+};
+
 window.onload = () => {
+  setLeftMenuAndCanvasHight();
   let url = window.location.href;
   let splitUrl = url.split("/");
   //console.log(splitUrl[2]);
