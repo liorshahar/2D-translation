@@ -55,15 +55,48 @@ window.onresize = () => {
 };
 
 window.onload = () => {
+  /* Ajust canvas and left menu size*/
   setLeftMenuAndCanvasHight();
+
+  /* Get url info */
   let url = window.location.href;
   let splitUrl = url.split("/");
-  //console.log(splitUrl[2]);
-  fetch(`http://${splitUrl[2]}/foo.txt`)
-    .then(response => response.text())
-    .then(data => {
-      console.log(data);
-    });
+
+  /* Canvas */
+  let canvas = document.getElementById("myCanvas");
+  let ctx = canvas.getContext("2d");
+
+  let fileName;
+
+  /*  Set input file lisener*/
+  let loadFileInput = document.getElementById("loadFileInput");
+  loadFileInput.addEventListener("change", e => {
+    fileName = e.target.files[0].name;
+    if (fileName) {
+      document.getElementById("loadFileLable").children[1].innerHTML = fileName;
+    }
+  });
+
+  /* Set draw button lisener */
+  let drawButton = document.getElementById("draw");
+  drawButton.addEventListener("click", () => {
+    if (!fileName) {
+      alert("Please load file");
+    } else {
+      fetch(`http://${splitUrl[2]}/${fileName}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log("start drawing");
+          ctx.beginPath();
+          ctx.moveTo(data[0].lines[0].x, data[0].lines[0].y);
+          for (let i = 0; i < data[0].lines.length; i++) {
+            ctx.lineTo(data[0].lines[i].x, data[0].lines[i].y);
+          }
+          ctx.moveTo(data[0].lines[0].x, data[0].lines[0].y);
+          ctx.stroke();
+        });
+    }
+  });
 
   /*   let drawLineDiv = document.getElementById("drawLineDiv");
   let drawLineCtx = drawLineDiv.getContext("2d");
