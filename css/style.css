@@ -34,7 +34,7 @@ nav h1 {
 
 /* left menu bar */
 
-/* genral */
+/* container element */
 #leftMenuBar {
   width: 12%;
   float: left;
@@ -58,7 +58,6 @@ nav h1 {
 }
 
 /* container flex box */
-
 .toolsContainer {
   display: flex;
   flex-flow: row wrap;
@@ -70,12 +69,16 @@ nav h1 {
 
 .toolsItem {
   background-color: rgb(114, 111, 111);
-  width: 40%;
+  width: 35%;
   height: 80px;
-  padding: 5px;
+  padding: 10px;
   margin-top: 1px;
-  margin-left: 8px;
+  margin-left: 10px;
   margin-bottom: 1px;
+  cursor: pointer;
+}
+.toolsItem:hover {
+  background-color: darkgrey;
 }
 
 .toolsItem:nth-child(1) {
@@ -92,8 +95,105 @@ nav h1 {
   background-size: cover; /* Resize the background image to cover the entire container */
 }
 
+.toolsItem:nth-child(3) {
+  background-image: url("../images/zoomIn.png");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+}
+
+.toolsItem:nth-child(4) {
+  background-image: url("../images/zoomOut.png");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+  background-size: cover; /* Resize the background image to cover the entire container */
+}
+
+.toolsItem:nth-child(5) {
+  background-image: url("../images/rootate.png");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+}
+
+.toolsItem:nth-child(6) {
+  background-image: url("../images/rootateL.png");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+}
+
+.toolsItem:nth-child(7) {
+  background-image: url("../images/shearingIcon.png");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+}
+
+.toolsItem:nth-child(8) {
+  background-image: url("../images/moveIcon.png");
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Do not repeat the image */
+}
+
 .toolsItemLong {
-  width: 87.5%;
+  background-color: rgb(114, 111, 111);
+  width: 83%;
+  height: 80px;
+  padding: 10px;
+  margin-top: 1px;
+  margin-left: 10px;
+  margin-bottom: 1px;
+}
+
+.inputfile {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.inputfile + label {
+  color: white;
+  height: 30px;
+  line-height: 30px;
+  width: 178px;
+  padding-right: 13px;
+  padding-bottom: 3px;
+  background-color: black;
+  border-radius: 4px;
+  display: block;
+}
+
+.inputfile:focus + label,
+.inputfile + label:hover {
+  background-color: darkgrey;
+}
+
+.inputfile + label {
+  cursor: pointer; /* "hand" cursor */
+}
+
+#loadFileLable div:nth-child(1) {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  margin-left: 8px;
+  background-image: url("../images/loadFileIcon.png");
+  background-position: left;
+  background-repeat: no-repeat; /* Do not repeat the image */
+}
+
+#loadFileLable span:nth-child(2) {
+  display: inline-block;
+  margin-left: 10px;
+  vertical-align: super;
+  font-size: 1.1em;
+  font-weight: 400;
+}
+
+.inputfile:focus + label {
+  outline: 1px dotted #000;
+  outline: -webkit-focus-ring-color auto 5px;
 }
 
 footer {
