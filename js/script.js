@@ -38,16 +38,76 @@ function clearCanvas(ctxCanvas) {
 
 function setLeftMenuAndCanvasHight() {
   let windowHeight = window.innerHeight;
-
+  let windowWidth = window.innerWidth;
   /* Set canvas height */
   let canvas = document.getElementById("myCanvas");
   let ctx = canvas.getContext("2d");
   ctx.canvas.height = windowHeight - 173; // minus -> header + footer = 200
-
+  ctx.canvas.width = windowWidth - 232;
   /* Set side menu height */
   let leftMenuBar = document.getElementById("leftMenuBar");
   leftMenuBar.style.height = `${windowHeight - 172}px`; // minus -> header + footer + border  = 202
 }
+
+/* Draw line */
+function moveLines(lineArray, tx, ty, ctx) {
+  ctx.beginPath();
+  for (let i = 0; i < lineArray.length; i++) {
+    if (lineArray[i].line == 0) {
+      ctx.moveTo(lineArray[i].x + tx, lineArray[i].y + ty);
+      lineArray[i].x += tx;
+      lineArray[i].y += ty;
+    } else {
+      ctx.lineTo(lineArray[i].x + tx, lineArray[i].y + ty);
+      lineArray[i].x += tx;
+      lineArray[i].y += ty;
+    }
+  }
+  ctx.stroke();
+  return lineArray;
+}
+/* Draw Circle */
+
+function moveCircles(circleArray, tx, ty, ctx) {
+  for (let i = 0; i < circleArray.length; i++) {
+    ctx.beginPath();
+    ctx.arc(
+      circleArray[i].x + tx,
+      circleArray[i].y + ty,
+      circleArray[i].r,
+      0,
+      2 * Math.PI
+    );
+    ctx.stroke();
+    circleArray[i].x += tx;
+    circleArray[i].y += ty;
+  }
+  return circleArray;
+}
+/* Draw Curve */
+function moveCurves(curveArray, tx, ty, ctx) {
+  for (let i = 0; i < curveArray.length; i++) {
+    ctx.beginPath();
+    ctx.moveTo(curveArray[i].cp1x + tx, curveArray[i].cp1y + ty);
+    ctx.bezierCurveTo(
+      curveArray[i].cp1x + tx,
+      curveArray[i].cp1y + ty,
+      curveArray[i].cp2x + tx,
+      curveArray[i].cp2y + ty,
+      curveArray[i].x + tx,
+      curveArray[i].y + ty
+    );
+    ctx.stroke();
+    curveArray[i].cp1x += tx;
+    curveArray[i].cp1y += ty;
+    curveArray[i].cp2x += tx;
+    curveArray[i].cp2y += ty;
+    curveArray[i].x += tx;
+    curveArray[i].y += ty;
+  }
+  return curveArray;
+}
+
 /* Window on load */
 
 window.onresize = () => {
@@ -66,8 +126,10 @@ window.onload = () => {
   let canvas = document.getElementById("myCanvas");
   let ctx = canvas.getContext("2d");
 
+  /* Global scope variables */
   let fileName;
-
+  let moveButtonFlag = false;
+  let isDraw = false;
   /*  Set input file lisener*/
   let loadFileInput = document.getElementById("loadFileInput");
   loadFileInput.addEventListener("change", e => {
@@ -86,71 +148,57 @@ window.onload = () => {
       fetch(`http://${splitUrl[2]}/${fileName}`)
         .then(response => response.json())
         .then(data => {
-          ctx.beginPath();
-          for (let i = 0; i < data.lines.length; i++) {
-            if (data.lines[i].line == 0) {
-              ctx.moveTo(data.lines[i].x, data.lines[i].y);
-            } else {
-              ctx.lineTo(data.lines[i].x, data.lines[i].y);
-            }
-          }
-          ctx.stroke();
-
-          for (let i = 0; i < data.circle.length; i++) {
-            ctx.beginPath();
-            ctx.arc(
-              data.circle[i].x,
-              data.circle[i].y,
-              data.circle[i].r,
-              0,
-              2 * Math.PI
-            );
-            ctx.stroke();
-          }
-
-          for (let i = 0; i < data.curve.length; i++) {
-            ctx.beginPath();
-            ctx.moveTo(data.curve[i].cp1x, data.curve[i].cp1y);
-            ctx.bezierCurveTo(
-              data.curve[i].cp1x,
-              data.curve[i].cp1y,
-              data.curve[i].cp2x,
-              data.curve[i].cp2y,
-              data.curve[i].x,
-              data.curve[i].y
-            );
-            ctx.stroke();
-          }
+          /* Drawing the picture from the text file */
+          localStorage.setItem("points", JSON.stringify(data));
+          moveLines(data.lines, 0, 0, ctx);
+          moveCircles(data.circle, 0, 0, ctx);
+          moveCurves(data.curve, 0, 0, ctx);
+          isDraw = true;
         });
     }
   });
 
-  /*   let drawLineDiv = document.getElementById("drawLineDiv");
-  let drawLineCtx = drawLineDiv.getContext("2d");
-
-  let clearLineBtn = document.getElementById("clearLine");
-  clearLineBtn.addEventListener("click", () => {
-    if (drawLineCtx) {
-      clearCanvas(drawLineCtx);
+  /* Set moveButton listner */
+  let moveButton = document.getElementById("moveButton");
+  moveButton.addEventListener("click", () => {
+    if (isDraw) {
+      moveButton.style.backgroundColor = "darkgrey";
+      moveButtonFlag = true;
     } else {
-      console.log("Can't find Line ctx");
+      alert("Load file Please...");
     }
   });
-  let drawLinectxCanvas = drawLineCtx.canvas;
-  let lineCoordArray = [];
-  let lineCoord;
 
-  drawLineDiv.onclick = event => {
-    lineCoord = relMouseCoords(drawLinectxCanvas, event);
-    lineCoordArray.push(lineCoord);
-    myCircle(
-      [lineCoord, { x: lineCoord.x + 3, y: lineCoord.y + 3 }],
-      drawLineCtx
-    );
+  /* Move variables */
 
-    if (lineCoordArray.length === 2) {
-      myLine(lineCoordArray, drawLineCtx);
-      lineCoordArray = [];
+  let movePoints = [];
+  let movePointsIndex = 0;
+
+  /* main */
+  canvas.onclick = event => {
+    if (moveButtonFlag) {
+      movePoints[movePointsIndex] = relMouseCoords(ctx.canvas, event);
+      movePointsIndex++;
+
+      if (movePoints.length == 2) {
+        let tx = movePoints[1].x - movePoints[0].x;
+        let ty = movePoints[1].y - movePoints[0].y;
+        let pointsArray;
+        let newLineArray, newCircleArray, newCurveArray;
+
+        if (localStorage.points) {
+          pointsArray = JSON.parse(localStorage.points);
+          clearCanvas(ctx);
+          pointsArray.lines = moveLines(pointsArray.lines, tx, ty, ctx);
+          pointsArray.circle = moveCircles(pointsArray.circle, tx, ty, ctx);
+          pointsArray.curve = moveCurves(pointsArray.curve, tx, ty, ctx);
+          localStorage.setItem("points", JSON.stringify(pointsArray));
+          movePoints = [];
+          movePointsIndex = 0;
+          moveButton.style.backgroundColor = "rgb(114, 111, 111)";
+          moveButtonFlag = false;
+        }
+      }
     }
-  }; */
+  };
 };
