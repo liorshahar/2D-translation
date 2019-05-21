@@ -86,14 +86,41 @@ window.onload = () => {
       fetch(`http://${splitUrl[2]}/${fileName}`)
         .then(response => response.json())
         .then(data => {
-          console.log("start drawing");
           ctx.beginPath();
-          ctx.moveTo(data[0].lines[0].x, data[0].lines[0].y);
-          for (let i = 0; i < data[0].lines.length; i++) {
-            ctx.lineTo(data[0].lines[i].x, data[0].lines[i].y);
+          for (let i = 0; i < data.lines.length; i++) {
+            if (data.lines[i].line == 0) {
+              ctx.moveTo(data.lines[i].x, data.lines[i].y);
+            } else {
+              ctx.lineTo(data.lines[i].x, data.lines[i].y);
+            }
           }
-          ctx.moveTo(data[0].lines[0].x, data[0].lines[0].y);
           ctx.stroke();
+
+          for (let i = 0; i < data.circle.length; i++) {
+            ctx.beginPath();
+            ctx.arc(
+              data.circle[i].x,
+              data.circle[i].y,
+              data.circle[i].r,
+              0,
+              2 * Math.PI
+            );
+            ctx.stroke();
+          }
+
+          for (let i = 0; i < data.curve.length; i++) {
+            ctx.beginPath();
+            ctx.moveTo(data.curve[i].cp1x, data.curve[i].cp1y);
+            ctx.bezierCurveTo(
+              data.curve[i].cp1x,
+              data.curve[i].cp1y,
+              data.curve[i].cp2x,
+              data.curve[i].cp2y,
+              data.curve[i].x,
+              data.curve[i].y
+            );
+            ctx.stroke();
+          }
         });
     }
   });
