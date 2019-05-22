@@ -49,6 +49,8 @@ function setLeftMenuAndCanvasHight() {
   leftMenuBar.style.height = `${windowHeight - 172}px`; // minus -> header + footer + border  = 202
 }
 
+/* ---------------------Translate-------------------------------------------------- */
+
 /* Draw line */
 function moveLines(lineArray, tx, ty, ctx) {
   ctx.beginPath();
@@ -88,7 +90,7 @@ function moveCircles(circleArray, tx, ty, ctx) {
 function moveCurves(curveArray, tx, ty, ctx) {
   for (let i = 0; i < curveArray.length; i++) {
     ctx.beginPath();
-    ctx.moveTo(curveArray[i].cp1x + tx, curveArray[i].cp1y + ty);
+    ctx.moveTo(curveArray[i].startX + tx, curveArray[i].startY + ty);
     ctx.bezierCurveTo(
       curveArray[i].cp1x + tx,
       curveArray[i].cp1y + ty,
@@ -98,6 +100,8 @@ function moveCurves(curveArray, tx, ty, ctx) {
       curveArray[i].y + ty
     );
     ctx.stroke();
+    curveArray[i].startX += tx;
+    curveArray[i].startY += ty;
     curveArray[i].cp1x += tx;
     curveArray[i].cp1y += ty;
     curveArray[i].cp2x += tx;
@@ -107,6 +111,179 @@ function moveCurves(curveArray, tx, ty, ctx) {
   }
   return curveArray;
 }
+
+/* ----------------------Scailing----------------------------------------- */
+
+function scalingLines(lineArray, s, ctx) {
+  ctx.beginPath();
+  for (let i = 0; i < lineArray.length; i++) {
+    if (lineArray[i].line == 0) {
+      ctx.moveTo(lineArray[i].x * s, lineArray[i].y * s);
+      lineArray[i].x *= s;
+      lineArray[i].y *= s;
+    } else {
+      ctx.lineTo(lineArray[i].x * s, lineArray[i].y * s);
+      lineArray[i].x *= s;
+      lineArray[i].y *= s;
+    }
+  }
+  ctx.stroke();
+  return lineArray;
+}
+
+/* Draw Circle */
+function scalingCircles(circleArray, s, ctx) {
+  for (let i = 0; i < circleArray.length; i++) {
+    ctx.beginPath();
+    ctx.arc(
+      circleArray[i].x * s,
+      circleArray[i].y * s,
+      circleArray[i].r * s,
+      0,
+      2 * Math.PI
+    );
+    ctx.stroke();
+    circleArray[i].r *= s;
+    circleArray[i].x *= s;
+    circleArray[i].y *= s;
+  }
+  return circleArray;
+}
+
+/* Draw Curve */
+function scalingCurves(curveArray, s, ctx) {
+  for (let i = 0; i < curveArray.length; i++) {
+    ctx.beginPath();
+    ctx.moveTo(curveArray[i].startX * s, curveArray[i].startY * s);
+    ctx.bezierCurveTo(
+      curveArray[i].cp1x * s,
+      curveArray[i].cp1y * s,
+      curveArray[i].cp2x * s,
+      curveArray[i].cp2y * s,
+      curveArray[i].x * s,
+      curveArray[i].y * s
+    );
+    ctx.stroke();
+    curveArray[i].startX *= s;
+    curveArray[i].startY *= s;
+    curveArray[i].cp1x *= s;
+    curveArray[i].cp1y *= s;
+    curveArray[i].cp2x *= s;
+    curveArray[i].cp2y *= s;
+    curveArray[i].x *= s;
+    curveArray[i].y *= s;
+  }
+  return curveArray;
+}
+
+function myScaling(sFactor, ctx) {
+  if (localStorage.points) {
+    pointsArray = JSON.parse(localStorage.points);
+    clearCanvas(ctx);
+    pointsArray.lines = scalingLines(pointsArray.lines, sFactor, ctx);
+    pointsArray.circle = scalingCircles(pointsArray.circle, sFactor, ctx);
+    pointsArray.curve = scalingCurves(pointsArray.curve, sFactor, ctx);
+    localStorage.setItem("points", JSON.stringify(pointsArray));
+  }
+}
+/* --------------------------------------------------------------------------- */
+
+/* ----------------------Rotation--------------------------------------------- */
+
+/*  var radians = (Math.PI / 180) * angle,
+        cos = Math.cos(radians),
+        sin = Math.sin(radians),
+        nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+        ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+    return [nx, ny]; */
+
+function calaXY(x, y, teta) {
+  console.log(x + " : " + y);
+  let xt = Math.abs(
+    x * Math.cos((90 * Math.PI) / 180) - y * Math.sin((90 * Math.PI) / 180)
+  );
+  let yt =
+    x * Math.cos((90 * Math.PI) / 180) - y * Math.sin((90 * Math.PI) / 180);
+
+  console.log(xt + " : " + yt);
+  return { xt: xt, yt: yt };
+}
+
+function RotationLines(lineArray, teta, ctx) {
+  ctx.beginPath();
+  for (let i = 0; i < lineArray.length; i++) {
+    XY = calaXY(lineArray[i].x, lineArray[i].y, teta);
+
+    if (lineArray[i].line == 0) {
+      ctx.moveTo(XY.xt, XY.yt);
+      lineArray[i].x = XY.xt;
+      lineArray[i].y = XY.yt;
+    } else {
+      ctx.lineTo(XY.xt, XY.yt);
+      lineArray[i].x = XY.xt;
+      lineArray[i].y = XY.xt;
+    }
+  }
+  ctx.stroke();
+  return lineArray;
+}
+
+/* Draw Circle */
+/* function RotationCircles(circleArray, s, ctx) {
+  for (let i = 0; i < circleArray.length; i++) {
+    ctx.beginPath();
+    ctx.arc(
+      circleArray[i].x * s,
+      circleArray[i].y * s,
+      circleArray[i].r * s,
+      0,
+      2 * Math.PI
+    );
+    ctx.stroke();
+    circleArray[i].r *= s;
+    circleArray[i].x *= s;
+    circleArray[i].y *= s;
+  }
+  return circleArray;
+} */
+
+/* Draw Curve */
+function RotationCurves(curveArray, teta, ctx) {
+  for (let i = 0; i < curveArray.length; i++) {
+    ctx.beginPath();
+    ctx.moveTo(curveArray[i].startX * s, curveArray[i].startY * s);
+    ctx.bezierCurveTo(
+      curveArray[i].cp1x * s,
+      curveArray[i].cp1y * s,
+      curveArray[i].cp2x * s,
+      curveArray[i].cp2y * s,
+      curveArray[i].x * s,
+      curveArray[i].y * s
+    );
+    ctx.stroke();
+    curveArray[i].startX *= s;
+    curveArray[i].startY *= s;
+    curveArray[i].cp1x *= s;
+    curveArray[i].cp1y *= s;
+    curveArray[i].cp2x *= s;
+    curveArray[i].cp2y *= s;
+    curveArray[i].x *= s;
+    curveArray[i].y *= s;
+  }
+  return curveArray;
+}
+
+function myRotation(sFactor, ctx) {
+  if (localStorage.points) {
+    pointsArray = JSON.parse(localStorage.points);
+    clearCanvas(ctx);
+    pointsArray.lines = RotationLines(pointsArray.lines, sFactor, ctx);
+    pointsArray.circle = RotationCircles(pointsArray.circle, sFactor, ctx);
+    pointsArray.curve = RotationCurves(pointsArray.curve, sFactor, ctx);
+    localStorage.setItem("points", JSON.stringify(pointsArray));
+  }
+}
+/* --------------------------------------------------------------------------- */
 
 /* Window on load */
 
@@ -142,6 +319,8 @@ window.onload = () => {
   /* Set draw button lisener */
   let drawButton = document.getElementById("draw");
   drawButton.addEventListener("click", () => {
+    clearCanvas(ctx);
+    scaleFactor = parseFloat(1.1);
     if (!fileName) {
       alert("Please load file");
     } else {
@@ -161,6 +340,7 @@ window.onload = () => {
   /* Set moveButton listner */
   let moveButton = document.getElementById("moveButton");
   moveButton.addEventListener("click", () => {
+    console.log(isDraw);
     if (isDraw) {
       moveButton.style.backgroundColor = "darkgrey";
       moveButtonFlag = true;
@@ -169,13 +349,42 @@ window.onload = () => {
     }
   });
 
-  /* Move variables */
+  /* Set zoom in / out button listeners*/
 
+  let zoomInButton = document.getElementById("zoomInButton");
+  zoomInButton.addEventListener("click", () => {
+    myScaling(scaleSize, ctx);
+  });
+
+  let zoomOutButton = document.getElementById("zoomOutButton");
+  zoomOutButton.addEventListener("click", () => {
+    myScaling(scaleResize, ctx);
+  });
+
+  /* ---------------------------------------------------------- */
+
+  /* Set Rotation listeners */
+
+  let rotatRightButton = document.getElementById("rotatRightButton");
+  rotatRightButton.addEventListener("click", () => {
+    if (localStorage.points) {
+      pointsArray = JSON.parse(localStorage.points);
+      clearCanvas(ctx);
+      pointsArray.lines = RotationLines(pointsArray.lines, 90, ctx);
+    }
+  });
+  /* ----------------------------------------------------------- */
+  /* Move variables */
   let movePoints = [];
   let movePointsIndex = 0;
 
+  /* Scaling variable */
+  let scaleSize = parseFloat(1.1);
+  let scaleResize = parseFloat(1 / scaleSize);
+
   /* main */
   canvas.onclick = event => {
+    /* Translate object logic */
     if (moveButtonFlag) {
       movePoints[movePointsIndex] = relMouseCoords(ctx.canvas, event);
       movePointsIndex++;
@@ -200,5 +409,21 @@ window.onload = () => {
         }
       }
     }
+
+    /* Translate object logic */
   };
+
+  /* Canvas listener */
+  canvas.addEventListener(
+    "wheel",
+    function(event) {
+      if (event.deltaY == -100) {
+        myScaling(scaleSize, ctx);
+      } else if (event.deltaY == 100) {
+        myScaling(scaleResize, ctx);
+      }
+      event.preventDefault();
+    },
+    false
+  );
 };
